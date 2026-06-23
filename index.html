@@ -3,65 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Instagram Private Highlight Downloader (SaveClip Clone)</title>
+    <title>Download Story IG Akun Private</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
-      <h2>SaveClip Clone (Private Highlight) 🎬</h2>
+      <h1>SaveClip Clone (Private Highlight) 🎬</h1>
 
-      <div class="step">
-        <h4>Langkah 1: Masukkan URL / ID Highlight Target</h4>
+      <div class="card-step">
+        <h3>Langkah 1: Masukkan URL / ID Highlight Target</h3>
         <p>Tempel link Highlight privat atau ketik ID angkanya saja.</p>
         <input
           type="text"
           id="urlInput"
-          placeholder="Contoh: https://www.instagram.com/stories/highlights/18083128709545429/"
+          placeholder="https://www.instagram.com/stories/highlights/..."
           oninput="generateGraphQLUrl()"
         />
       </div>
 
-      <div class="step">
-        <h4>Langkah 2: Buka API Data Instagram</h4>
+      <div class="card-step">
+        <h3>Langkah 2: Buka Data Instagram</h3>
         <p>
           Klik tombol di bawah ini. Tab baru akan terbuka di browser kamu berisi
           teks kode data JSON mentah.
-          <strong>Salin semua (Ctrl+A lalu Ctrl+C)</strong> teks yang muncul di
+          <strong>Salin semua teks (Ctrl+A lalu Ctrl+C)</strong> yang muncul di
           tab baru tersebut.
         </p>
         <a
           id="graphqlLink"
-          class="btn-link"
           href="#"
           target="_blank"
+          class="btn-pink"
           style="display: none"
           >🔗 Klik untuk Buka Data Source</a
         >
-        <span id="linkPlaceholder"
-          >(Masukkan URL Langkah 1 terlebih diante agar memunculkan
-          tombol)</span
-        >
+        <div id="linkPlaceholder" class="placeholder-text">
+          Masukkan URL valid di Langkah 1 dahulu...
+        </div>
       </div>
 
-      <div class="step">
-        <h4>Langkah 3: Tempel Data Source</h4>
+      <div class="card-step">
+        <h3>Langkah 3: Tempel Data Source</h3>
         <p>
           Tempelkan seluruh data teks JSON yang kamu salin dari Langkah 2 ke
           kotak di bawah ini.
         </p>
         <textarea
           id="jsonInput"
+          rows="6"
           placeholder="Tempel (Paste) semua teks data source ke sini..."
         ></textarea>
+        <button class="main-btn" onclick="extractData()">
+          Download Media 🚀
+        </button>
       </div>
 
-      <button class="main-btn" onclick="extractData()">
-        Ekstrak & Download Media 🚀
-      </button>
-
-      <div class="result-box" id="resultBox">
-        <h3>🎉 Media Berhasil Ditemukan:</h3>
-        <div id="mediaContainer"></div>
+      <div id="resultBox" class="result-section" style="display: none">
+        <h2>🎉 Media Berhasil Ditemukan:</h2>
+        <div id="mediaContainer" class="media-grid"></div>
       </div>
     </div>
 

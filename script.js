@@ -27,7 +27,6 @@ function generateGraphQLUrl() {
 
 // Fungsi memaksa download file lintas-domain dengan bantuan CORS Proxy
 async function forceDownload(url, filename) {
-  // Memakai corsproxy.io gratisan untuk membongkar blokir download dari Instagram
   const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
 
   try {
@@ -36,28 +35,24 @@ async function forceDownload(url, filename) {
 
     const blob = await response.blob();
 
-    // Membuat tautan unduhan virtual lokal di memori browser
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = blobUrl;
     a.download = filename;
 
-    // Memicu klik otomatis download ke memori internal
     document.body.appendChild(a);
     a.click();
 
-    // Bersihkan sisa memori browser
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
   } catch (error) {
     console.error("Proxy gagal atau lambat, dialihkan ke tab baru:", error);
-    // Jika proxy bermasalah, tetap buka di tab baru sebagai cadangan (fallback)
     window.open(url, "_blank");
   }
 }
 
-// Fungsi utama membedah JSON input dari user
+// Fungsi utama membedah JSON input dari user dan menampilkan preview foto/video
 function extractData() {
   const rawData = document.getElementById("jsonInput").value.trim();
   const mediaContainer = document.getElementById("mediaContainer");
@@ -92,12 +87,18 @@ function extractData() {
     items.forEach((item, index) => {
       let isVideo = item.is_video;
       let downloadUrl = "";
+      let previewUrl = "";
 
+      // Ambil URL resolusi tertinggi & siapkan link preview
       if (isVideo && item.video_resources) {
         downloadUrl = item.video_resources[item.video_resources.length - 1].src;
+        previewUrl = item.display_resources
+          ? item.display_resources[item.display_resources.length - 1].src
+          : "";
       } else if (item.display_resources) {
         downloadUrl =
           item.display_resources[item.display_resources.length - 1].src;
+        previewUrl = downloadUrl;
       }
 
       if (downloadUrl) {
@@ -108,17 +109,23 @@ function extractData() {
         info.className = "media-info";
         info.innerText = `Item #${index + 1} - [${isVideo ? "🎬 VIDEO" : "📸 FOTO"}]`;
 
+        // Membuat elemen gambar preview (Bypass CORS via Proxy)
+        const imgPreview = document.createElement("img");
+        if (previewUrl) {
+          imgPreview.className = "media-preview";
+          imgPreview.src =
+            "https://corsproxy.io/?" + encodeURIComponent(previewUrl);
+          imgPreview.alt = `Preview ${index + 1}`;
+        }
+
         const btn = document.createElement("button");
         btn.className = "download-btn";
-        btn.style.cursor = "pointer";
-        btn.style.border = "none";
 
         const ext = isVideo ? "mp4" : "jpg";
         const fileName = `ig_highlight_${item.id || index + 1}.${ext}`;
 
         btn.innerText = "⬇️ Download";
 
-        // Eksekusi fungsi download paksa saat diklik
         btn.onclick = function () {
           btn.innerText = "⏳ Downloading...";
           btn.disabled = true;
@@ -129,7 +136,9 @@ function extractData() {
           });
         };
 
+        // Susun struktur elemen kartu
         card.appendChild(info);
+        if (previewUrl) card.appendChild(imgPreview);
         card.appendChild(btn);
         mediaContainer.appendChild(card);
       }
@@ -140,4 +149,4 @@ function extractData() {
     );
     console.error(e);
   }
-} // <-- Kurung kurawal penutup ini yang kemarin ketinggalan!
+}
