@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instagram Private Highlight Downloader (SaveClip Clone)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>SaveClip Clone (Private Highlight) 🎬</h2>
+
+      <div class="step">
+        <h4>Langkah 1: Masukkan URL / ID Highlight Target</h4>
+        <p>Tempel link Highlight privat atau ketik ID angkanya saja.</p>
+        <input
+          type="text"
+          id="urlInput"
+          placeholder="Contoh: https://www.instagram.com/stories/highlights/18083128709545429/"
+          oninput="generateGraphQLUrl()"
+        />
+      </div>
+
+      <div class="step">
+        <h4>Langkah 2: Buka API Data Instagram</h4>
+        <p>
+          Klik tombol di bawah ini. Tab baru akan terbuka di browser kamu berisi
+          teks kode data JSON mentah.
+          <strong>Salin semua (Ctrl+A lalu Ctrl+C)</strong> teks yang muncul di
+          tab baru tersebut.
+        </p>
+        <a
+          id="graphqlLink"
+          class="btn-link"
+          href="#"
+          target="_blank"
+          style="display: none"
+          >🔗 Klik untuk Buka Data Source</a
+        >
+        <span id="linkPlaceholder"
+          >(Masukkan URL Langkah 1 terlebih diante agar memunculkan
+          tombol)</span
+        >
+      </div>
+
+      <div class="step">
+        <h4>Langkah 3: Tempel Data Source</h4>
+        <p>
+          Tempelkan seluruh data teks JSON yang kamu salin dari Langkah 2 ke
+          kotak di bawah ini.
+        </p>
+        <textarea
+          id="jsonInput"
+          placeholder="Tempel (Paste) semua teks data source ke sini..."
+        ></textarea>
+      </div>
+
+      <button class="main-btn" onclick="extractData()">
+        Ekstrak & Download Media 🚀
+      </button>
+
+      <div class="result-box" id="resultBox">
+        <h3>🎉 Media Berhasil Ditemukan:</h3>
+        <div id="mediaContainer"></div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
