@@ -27,6 +27,7 @@ function generateGraphQLUrl() {
 
 // Fungsi memaksa download file lintas-domain dengan bantuan CORS Proxy
 async function forceDownload(url, filename) {
+  // Memakai corsproxy.io gratisan untuk membongkar blokir download dari Instagram
   const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
 
   try {
@@ -34,19 +35,24 @@ async function forceDownload(url, filename) {
     if (!response.ok) throw new Error("Network response was not ok.");
 
     const blob = await response.blob();
+
+    // Membuat tautan unduhan virtual lokal di memori browser
     const blobUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = blobUrl;
     a.download = filename;
 
+    // Memicu klik otomatis download ke memori internal
     document.body.appendChild(a);
     a.click();
 
+    // Bersihkan sisa memori browser
     window.URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
   } catch (error) {
-    console.error("Proxy gagal, dialihkan ke tab baru:", error);
+    console.error("Proxy gagal atau lambat, dialihkan ke tab baru:", error);
+    // Jika proxy bermasalah, tetap buka di tab baru sebagai cadangan (fallback)
     window.open(url, "_blank");
   }
 }
@@ -112,6 +118,7 @@ function extractData() {
 
         btn.innerText = "⬇️ Download";
 
+        // Eksekusi fungsi download paksa saat diklik
         btn.onclick = function () {
           btn.innerText = "⏳ Downloading...";
           btn.disabled = true;
@@ -126,11 +133,11 @@ function extractData() {
         card.appendChild(btn);
         mediaContainer.appendChild(card);
       }
-    }); // <-- Penutup perulangan forEach yang aman!
+    });
   } catch (e) {
     alert(
       "❌ Gagal membaca data. Pastikan yang kamu copy-paste adalah SEMUA teks JSON dari tab baru Langkah 2!",
     );
     console.error(e);
   }
-}
+} // <-- Kurung kurawal penutup ini yang kemarin ketinggalan!
