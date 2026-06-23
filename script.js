@@ -1,58 +1,4 @@
-// Fungsi otomatis generate link GraphQL saat user memasukkan URL biasa
-function generateGraphQLUrl() {
-  const input = document.getElementById("urlInput").value.trim();
-  const graphqlLink = document.getElementById("graphqlLink");
-  const linkPlaceholder = document.getElementById("linkPlaceholder");
-
-  let highlightId = "";
-
-  // Cari ID angka dari URL yang dimasukkan
-  const match = input.match(/highlights\/([0-9]+)/);
-  if (match && match[1]) {
-    highlightId = match[1];
-  } else if (/^[0-9]+$/.test(input)) {
-    highlightId = input;
-  }
-
-  if (highlightId) {
-    const targetUrl = `https://www.instagram.com/graphql/query/?query_hash=de8017ee0a7c9c45ec4260733d81ea31&variables=%7B%22reel_ids%22%3A%5B%5D%2C%22highlight_reel_ids%22%3A%5B%22${highlightId}%22%5D%2C%22precomposed_overlay%22%3Afalse%7D`;
-    graphqlLink.href = targetUrl;
-    graphqlLink.style.display = "inline-block";
-    linkPlaceholder.style.display = "none";
-  } else {
-    graphqlLink.style.display = "none";
-    linkPlaceholder.style.display = "block";
-  }
-}
-
-// Fungsi memaksa download file lintas-domain dengan bantuan CORS Proxy
-async function forceDownload(url, filename) {
-  const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
-
-  try {
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error("Network response was not ok.");
-
-    const blob = await response.blob();
-
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = blobUrl;
-    a.download = filename;
-
-    document.body.appendChild(a);
-    a.click();
-
-    window.URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
-  } catch (error) {
-    console.error("Proxy gagal atau lambat, dialihkan ke tab baru:", error);
-    window.open(url, "_blank");
-  }
-}
-
-// Fungsi utama membedah JSON input dari user dan menampilkan preview foto/video
+// Fungsi utama membedah JSON input dari user dan menampilkan preview foto/video yang FIX
 function extractData() {
   const rawData = document.getElementById("jsonInput").value.trim();
   const mediaContainer = document.getElementById("mediaContainer");
@@ -89,7 +35,6 @@ function extractData() {
       let downloadUrl = "";
       let previewUrl = "";
 
-      // Ambil URL resolusi tertinggi & siapkan link preview
       if (isVideo && item.video_resources) {
         downloadUrl = item.video_resources[item.video_resources.length - 1].src;
         previewUrl = item.display_resources
@@ -109,13 +54,21 @@ function extractData() {
         info.className = "media-info";
         info.innerText = `Item #${index + 1} - [${isVideo ? "🎬 VIDEO" : "📸 FOTO"}]`;
 
-        // Membuat elemen gambar preview (Bypass CORS via Proxy)
+        // --- PROSES BYPASS GAMBAR PECAH VIA PROXY KHUSUS GAMBAR ---
         const imgPreview = document.createElement("img");
         if (previewUrl) {
           imgPreview.className = "media-preview";
-          imgPreview.src =
-            "https://corsproxy.io/?" + encodeURIComponent(previewUrl);
+
+          // Bersihkan awalan URL agar kompatibel penuh dengan proxy weserv
+          let cleanUrl = previewUrl.replace(/^https?:\/\//i, "");
+          imgPreview.src = `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&default=https://placehold.co/200x300/252525/ffffff?text=Preview+Ready`;
           imgPreview.alt = `Preview ${index + 1}`;
+
+          // Cadangan jika sewaktu-waktu proxy gambar utama membatasi request
+          imgPreview.onerror = function () {
+            imgPreview.src =
+              "https://corsproxy.io/?" + encodeURIComponent(previewUrl);
+          };
         }
 
         const btn = document.createElement("button");
@@ -136,7 +89,7 @@ function extractData() {
           });
         };
 
-        // Susun struktur elemen kartu
+        // Susun struktur elemen kartu kembali rapi vertikal ke bawah
         card.appendChild(info);
         if (previewUrl) card.appendChild(imgPreview);
         card.appendChild(btn);
